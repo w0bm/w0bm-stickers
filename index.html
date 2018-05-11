@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>w0bm stickers</title>
+        <script src="https://www.google.com/recaptcha/api.js"></script>
+        <script src="form-submit.js"></script>
+        <script src="country-select.js"></script>
+        <script>
+            window.addEventListener("load", () => {
+                const sel_elem = sel => document.querySelector(sel)
+                    , item_price = sel_elem("span#item_price")
+                    , item_count = sel_elem("span#item_count")
+                    , packaging = sel_elem("span#packaging_cost")
+                    , shipping = sel_elem("span#shipping_cost")
+                    , paypal = sel_elem("span#paypal_fee")
+                    , total = sel_elem("span#total_price")
+                    , count = sel_elem('input[name="count"]')
+                    , country = sel_elem('select[name="country_code"]');
+                const update_order_overview = () => {
+                    const price_per_item = 1
+                        , item_weight = 2;
+                    const number_of_items = parseInt(count.value);
+                    item_count.textContent = number_of_items;
+                    item_price.textContent = (number_of_items * price_per_item).toFixed(2);
+                    const packaging_cost = 1;
+                    packaging.textContent = (packaging_cost).toFixed(2);
+                    let shipping_cost;
+                    if(country.value === "DE") {
+                        if(number_of_items * item_weight <= 20)
+                            shipping_cost = 0.7 ;
+                        else if(number_of_items * item_weight <= 50)
+                            shipping_cost = 0.85;
+                        else if(number_of_items * item_weight <= 500)
+                            shipping_cost = 1.45;
+                        shipping_cost += 0.9;
+                    }
+                    else
+                        shipping_cost = 3.2;
+                    shipping.textContent = (shipping_cost).toFixed(2);
+                    const total_price = number_of_items * price_per_item + packaging_cost + shipping_cost;
+                    const pp_fee = total_price * 0.19 + 0.35;
+                    paypal.textContent = (pp_fee).toFixed(2);
+                    total.textContent = (total_price + pp_fee).toFixed(2);
+                };
+                count.addEventListener("change", update_order_overview);
+                country.addEventListener("change", update_order_overview);
+                update_order_overview();
+            });
+        </script>
+        <script>
+            const toggle_submit = val => document.querySelector('button[type="submit"]').disabled = val;
+
+            function enable_submit() {
+                toggle_submit(false)
+            }
+            function disable_submit(test) {
+                toggle_submit(true);
+            }
+
+            console.warn("create functions for prettier error displaying");
+
+            function form_submit(form) {
+                console.warn("display spinner");
+            }
+            function form_data(res, json, form) {
+                if(res.status === 400 && json.error.msg === "invalid_field_value") {
+                    alert("Invalid value for " + json.error.subject);
+                }
+                else if(res.status === 403 && json.error.msg === "captcha_verification_failed") {
+                    alert("Couldn't verify captcha! Resetting...");
+                    grecaptcha.reset();
+                }
+                else if(res.ok && json.success) {
+                    alert("Your data has been saved.");
+                }
+                else {
+                    alert("Oops, something internal broke. Please notify an administrator: https:\/\/w0bm.com/contact\n"
+                        + `${res.status} ${res.statusText}\n${JSON.stringify(json)}`
+                    );
+                }
+            }
+            function form_error(error, form) {
+                alert("submit error:\n" + JSON.stringify(error));
+            }
+        </script>
+        <link rel="stylesheet" href="style.css"/>
+    </head>
+    <body>
+        <div class="content">
+            <h1>w0bm stickers</h1>
+            <div class="box">
+                <h1 style="color: red;">This page is WIP. Do not order yet!</h1>
+                <img src="https://w0bm.com/w0bm%20fixed.svg" alt="w0bm logo"/>
+                <p>Hello good people of the internet, you have come to the right place if you always wanted to have a useless and overpriced piece of glued paper to put on your laptop!<p>
+                <p>The idea came first in 2015 when I was at the Chaos Communication Congress (32C3) and some very nice dudes had their own stickerprinter with them and printed stickers for us in exchange for a small and voluntary donation, so I decided to print some w0bm stickers and offered to the peeps in the IRC that they can have some if they come to the CCH and pick them up by themself, only one guy came and got some stickers from me but at the end of the day there are still people in the IRC who want to have either a new sticker or a sticker in general and for exactly this reason we are now offering you guys, the users of w0bm.com the chance to get our limited w0bm.com Otter sticker, there will be more events like this and we have already a second thing in our minds which is pretty cool!</p>
+                Each sticker will be a die cutted ~5x4,5 cm large w0bm otter with play button:
+                <br/>
+                <br/>
+                The stickers will be ordered at stickermule at [TBA] UTC. Ordering will be possible only until then.
+                <br/>
+                Paying is possible only via <b>PayPal</b>.
+            </div>
+
+            <div class="box">
+                <p>Your information is only stored on our server for the time of this event, if the event is over we will wipe everything related to you, please don't make a connection to your account, we don't want to know who you are, we just want to sell you a nice sticker!</p>
+                <p>Please note that the final price is not for everyone the same, because the shipping to differend countries costs differend amount of moneyz, but inside of Germany it wont be a big problem and it will be fast and painless, since we are not going to use Hermes!</p>
+                <p>If you have any questions related to this event or your order you can always reach us in the IRC directly. Please contact jkhsjdhjs or sirX</p>
+                <form class="js-submit" data-submit-callback="form_submit" data-callback="form_data" data-error-callback="form_error" action="send.php" method="POST">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>Address:</td>
+                                <td>
+                                    <input type="text" name="name" placeholder="Full Name" pattern=".+ .+" required/>
+                                    <br/>
+                                    <input type="text" name="street" placeholder="Street" required/>
+                                    <input type="text" name="house_number" placeholder="House Number" pattern="\w{1,5}" required/>
+                                    <br/>
+                                    <input type="text" name="postal_code" placeholder="Postal Code" pattern="[\w ]{4,10}" required/>
+                                    <input type="text" name="city" placeholder="City" required/>
+                                    <br/>
+                                    <select class="country_select" name="country_code" data-selected="DE"></select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Count:</td>
+                                <td><input type="number" name="count" value="1" min="1" max="100" required/></td>
+                            </tr>
+                            <tr>
+                                <td>Remark:</td>
+                                <td><textarea name="remark" rows="4" cols="30"></textarea></td>
+                            </tr>
+                            <tr>
+                                <td>Order Overview:</td>
+                                <td>
+                                    <table id="order_overview">
+                                        <tbody>
+                                            <tr>
+                                                <td>Stickers (<span id="item_count"></span>x)</td>
+                                                <td><span id="item_price"></span>€</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Packaging</td>
+                                                <td>+ <span id="packaging_cost"></span>€</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Shipping</td>
+                                                <td>+ <span id="shipping_cost"></span>€</td>
+                                            </tr>
+                                            <tr>
+                                                <td>PayPal Fee</td>
+                                                <td>+ <span id="paypal_fee"></span>€</td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td><span id="total_price"></span>€</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td><div class="g-recaptcha" data-sitekey="6LfAzlUUAAAAAGN0xhJx8hEahcVR1bpg7PUmAMwb" data-callback="enable_submit" data-expired-callback="disable_submit" data-theme="dark"></div></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td><button type="submit" disabled>Order</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

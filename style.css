@@ -1,0 +1,51 @@
+/* get sum w0bm stickers fool! */
+
+body {
+    font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #888888;
+    background: #161618;
+}
+
+.content {
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+img {
+    float: right;
+    border: 1px solid white;
+    background: white;
+    box-shadow: 0px 0px 13px black;
+}
+
+
+.box {
+    background: #232222;
+    padding: 5px;
+    padding-left: 5px;
+    border: 1px solid black;
+    margin-bottom: 5px;
+    padding-left: 10px;
+    overflow: auto;
+}
+
+form[action="send.php"] tr > td:first-of-type {
+    vertical-align: top;
+}
+
+table#order_overview {
+    background-color: #161618;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+table#order_overview tr > td:last-of-type {
+    text-align: right;
+}
+
+table#order_overview tr:last-of-type > td:last-of-type {
+    border-top: 1px solid #888888;
+    margin-top: 5px;
+}
