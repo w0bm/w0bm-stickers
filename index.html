@@ -27,30 +27,44 @@
             }
             function form_data(res, json, form) {
                 if(res.status === 400 && json.error.msg === "invalid_field_value") {
-                    flash("error", `Invalid value for ${json.error.subject}`);
+                    flash({
+                        type: "error",
+                        msg: `Invalid value for ${json.error.subject}`
+                    });
                     //alert("Invalid value for " + json.error.subject);
                 }
                 else if(res.status === 403 && json.error.msg === "captcha_verification_failed") {
                     //alert("Couldn't verify captcha! Resetting...");
-                    flash("error", "Couldn't verify captcha! Resetting...");
+                    flash({
+                        type: "error",
+                        msg: "Couldn't verify captcha! Resetting..."
+                    });
                     grecaptcha.reset();
                 }
                 else if(res.ok && json.success) {
                     //alert("Your data has been saved.");
-                    flash("success", "Your data has been saved.");
+                    flash({
+                        type: "success",
+                        msg: "Your data has been saved."
+                    });
                 }
                 else {
                     /*alert("Oops, something internal broke. Please notify an administrator: https:\/\/w0bm.com/contact\n"
                         + `${res.status} ${res.statusText}\n${JSON.stringify(json)}`
                     );*/
-                    flash("error", "Oops, something internal broke. Please notify an administrator: https:\/\/w0bm.com/contact\n"
-                        + `${res.status} ${res.statusText}\n${JSON.stringify(json)}`
-                    );
+                    flash({
+                        type: "error",
+                        msg: "Oops, something internal broke. Please notify an administrator: https:\/\/w0bm.com/contact\n"
+                            + `${res.status} ${res.statusText}\n${JSON.stringify(json)}`
+                    });
                 }
             }
             function form_error(error, form) {
                 //alert("submit error:\n" + JSON.stringify(error));
-                flash("error", "submit error: " + JSON.stringify(error));
+                flash({
+                    type: "error",
+                    msg: "submit error: " + JSON.stringify(error)
+                });
             }
         </script>
         <link rel="stylesheet" href="style.css"/>

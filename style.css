@@ -57,7 +57,21 @@ div#flash {
     left: 0;
     width: 100%;
     text-align: center;
-    background-color: #fff;
     font-weight: bold;
-    border-bottom: 2px solid #000;
+}
+  
+div#flash.error {
+    background-color: #fddfdf;
+    border-bottom: 2px solid #f1a899;
+    color: #5f3f3f;
+}
+div#flash.success {
+    background-color: #4caf50;
+    border-bottom: 2px solid #006018;
+    color: #001c07;
+}
+div#flash.warn {
+    background-color: #fffa90;
+    border-bottom: 2px solid #dad55e;
+    color: #777620;
 }

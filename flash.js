@@ -6,36 +6,23 @@ function init_flash() {
             duration: 4000, // 4 seconds
             options: {
                 duration: 400,
-                fill: "forwards"
+                fill: "both"
             },
-            types: {
-                error: {
-                    backgroundColor: "#fddfdf",
-                    border: "2px solid #f1a899",
-                    textColor: "#5f3f3f"
-                },
-                success: {
-                    backgroundColor: "#4caf50",
-                    border: "2px solid #006018",
-                    textColor: "#001c07"
-                },
-                warn: {
-                    backgroundColor: "#fffa90",
-                    border: "2px solid #dad55e",
-                    textColor: "#777620"
-                }
-            }
+            types: [
+                "error",
+                "success",
+                "warn"
+            ]
         }
     };
     let _tmp = {
         flash: false
     };
-    return flash = (type, msg) => {
+    return flash = ({ type, msg }) => {
         cfg.flash.elem.innerHTML = msg;
-        if(cfg.flash.types.hasOwnProperty(type)) {
-            cfg.flash.elem.style.backgroundColor = cfg.flash.types[type].backgroundColor;
-            cfg.flash.elem.style.borderBottom = cfg.flash.types[type].border;
-            cfg.flash.elem.style.fontColor = cfg.flash.types[type].fontColor;
+        if(cfg.flash.types.includes(type)) {
+            cfg.flash.elem.className = "";
+            cfg.flash.elem.classList.add(type);
         }
         if(_tmp.flash)
             return false;
