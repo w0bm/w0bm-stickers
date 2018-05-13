@@ -7,53 +7,6 @@
         <script src="country-select.js"></script>
         <script>
             window.addEventListener("load", () => {
-                const cfg = {
-                    flash: {
-                        elem: document.querySelector("div.flash"),
-                        keyframe: [ { top: "-22px" }, { top: 0 } ],
-                        duration: 4000, // 4 seconds
-                        options: {
-                            duration: 400,
-                            fill: "forwards"
-                        },
-                        types: {
-                            error: {
-                                backgroundColor: "#fddfdf",
-                                border: "2px solid #f1a899",
-                                textColor: "#5f3f3f"
-                            },
-                            success: {
-                                backgroundColor: "#4caf50",
-                                border: "2px solid #006018",
-                                textColor: "#001c07"
-                            },
-                            warn: {
-                                backgroundColor: "#fffa90",
-                                border: "2px solid #dad55e",
-                                textColor: "#777620"
-                            }
-                        }
-                    }
-                };
-                const flash = (type, msg) => {
-                    cfg.flash.elem.innerHTML = msg;
-                    if(cfg.flash.types.hasOwnProperty(type)) {
-                        cfg.flash.elem.style.backgroundColor = cfg.flash.types[type].backgroundColor;
-                        cfg.flash.elem.style.borderBottom = cfg.flash.types[type].border;
-                        cfg.flash.elem.style.fontColor = cfg.flash.types[type].fontColor;
-                    }
-                    if(typeof cfg.flash.elem.animate !== "function") { // Edgy
-                        cfg.flash.elem.style.top = 0;
-                        setTimeout(() => cfg.flash.elem.style.top = cfg.flash.keyframe[0].top, cfg.flash.duration);
-                        return false;
-                    }
-                    cfg.flash.elem.animate(cfg.flash.keyframe, cfg.flash.options).onfinish = () => {
-                        setTimeout(() => {
-                            cfg.flash.elem.animate(cfg.flash.keyframe, Object.assign(cfg.flash.options, { direction: "reverse" }));
-                        }, cfg.flash.duration);
-                    };
-                    return false;
-                };
                 const sel_elem = sel => document.querySelector(sel)
                     , item_price = sel_elem("span#item_price")
                     , item_count = sel_elem("span#item_count")
@@ -111,36 +64,36 @@
             }
             function form_data(res, json, form) {
                 if(res.status === 400 && json.error.msg === "invalid_field_value") {
-                    flash("error", `Invalid value for ${json.error.subject}`);
+                    window.flash("error", `Invalid value for ${json.error.subject}`);
                     //alert("Invalid value for " + json.error.subject);
                 }
                 else if(res.status === 403 && json.error.msg === "captcha_verification_failed") {
                     //alert("Couldn't verify captcha! Resetting...");
-                    flash("error", "Couldn't verify captcha! Resetting...");
+                    window.flash("error", "Couldn't verify captcha! Resetting...");
                     grecaptcha.reset();
                 }
                 else if(res.ok && json.success) {
                     //alert("Your data has been saved.");
-                    flash("error", "Your data has been saved.");
+                    window.flash("error", "Your data has been saved.");
                 }
                 else {
                     /*alert("Oops, something internal broke. Please notify an administrator: https:\/\/w0bm.com/contact\n"
                         + `${res.status} ${res.statusText}\n${JSON.stringify(json)}`
                     );*/
-                    flash("error", "Oops, something internal broke. Please notify an administrator: https:\/\/w0bm.com/contact\n"
+                    window.flash("error", "Oops, something internal broke. Please notify an administrator: https:\/\/w0bm.com/contact\n"
                         + `${res.status} ${res.statusText}\n${JSON.stringify(json)}`
                     );
                 }
             }
             function form_error(error, form) {
                 //alert("submit error:\n" + JSON.stringify(error));
-                flash("error", "submit error: " + JSON.stringify(error));
+                window.flash("error", "submit error: " + JSON.stringify(error));
             }
         </script>
         <link rel="stylesheet" href="style.css"/>
     </head>
     <body>
-        <div class="flash">&nbsp;</div>
+        <div id="flash">&nbsp;</div>
         <div class="content">
             <h1>w0bm stickers</h1>
             <div class="box">
@@ -220,12 +173,75 @@
                             </tr>
                             <tr>
                                 <td></td>
-                                <td><button type="submit" disabled>Order</button></td>
+                                <td><button type="submit" >Order</button></td>
                             </tr>
                         </tbody>
                     </table>
                 </form>
             </div>
         </div>
+        <script>
+            const cfg = {
+                flash: {
+                    elem: document.querySelector("div#flash"),
+                    keyframe: [ { top: "-22px" }, { top: 0 } ],
+                    duration: 4000, // 4 seconds
+                    options: {
+                        duration: 400,
+                        fill: "forwards"
+                    },
+                    types: {
+                        error: {
+                            backgroundColor: "#fddfdf",
+                            border: "2px solid #f1a899",
+                            textColor: "#5f3f3f"
+                        },
+                        success: {
+                            backgroundColor: "#4caf50",
+                            border: "2px solid #006018",
+                            textColor: "#001c07"
+                        },
+                        warn: {
+                            backgroundColor: "#fffa90",
+                            border: "2px solid #dad55e",
+                            textColor: "#777620"
+                        }
+                    }
+                }
+            };
+            let _tmp = {
+                flash: false
+            };
+            function flash(type, msg) {
+                cfg.flash.elem.innerHTML = msg;
+                if(cfg.flash.types.hasOwnProperty(type)) {
+                    cfg.flash.elem.style.backgroundColor = cfg.flash.types[type].backgroundColor;
+                    cfg.flash.elem.style.borderBottom = cfg.flash.types[type].border;
+                    cfg.flash.elem.style.fontColor = cfg.flash.types[type].fontColor;
+                }
+                if(_tmp.flash)
+                    return false;
+                _tmp.flash = true;
+                if(typeof cfg.flash.elem.animate !== "function") { // Edgy af
+                    const key = Object.keys(cfg.flash.keyframe[0])[0];
+                    cfg.flash.elem.style.top = cfg.flash.keyframe[1][key];
+                    setTimeout(() => {
+                        cfg.flash.elem.style.top = cfg.flash.keyframe[0][key];
+                        _tmp.flash = false;
+                    }, cfg.flash.duration);
+                    return false;
+                }
+                cfg.flash.elem.animate(
+                    cfg.flash.keyframe,
+                    cfg.flash.options
+                ).onfinish = () => setTimeout(() => {
+                    cfg.flash.elem.animate(
+                        cfg.flash.keyframe,
+                        Object.assign({ direction: "reverse" }, cfg.flash.options)
+                    ).onfinish = () => _tmp.flash = false;
+                }, cfg.flash.duration);
+                return false;
+            };
+        </script>
     </body>
 </html>

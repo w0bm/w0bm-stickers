@@ -51,7 +51,7 @@ table#order_overview tr:last-of-type > td:last-of-type {
 }
 
 /* flash */
-div.flash {
+div#flash {
     position: fixed;
     top: -22px;
     left: 0;
@@ -60,4 +60,4 @@ div.flash {
     background-color: #fff;
     font-weight: bold;
     border-bottom: 2px solid #000;
-  }
+}
