@@ -2,11 +2,12 @@
 
 require_once("config.php");
 
-function exit_response($status, $error = NULL, $subject = NULL) {
+function exit_response($status, $error = NULL, $subject = NULL, $order_id = NULL) {
     header("Content-type: application/json");
     http_response_code($status);
     exit(json_encode([
         "success" => $status === 200,
+        "order_id" => $order_id,
         "error" => $error ? [
             "msg" => $error,
             "subject" => $subject
@@ -101,7 +102,7 @@ if(json_decode($res, true)["success"] === false)
 
 //------------- INSERT ORDER -------------
 $dbh = new PDO("pgsql:dbname=w0bm-stickers", "w0bm-stickers");
-$query = $dbh->prepare("INSERT INTO orders (name, street, house_number, postal_code, city, country_code, count, remark, amount) VALUES (:name, :street, :house_number, :postal_code, :city, :country_code, :count, :remark, :amount)");
+$query = $dbh->prepare("INSERT INTO orders (name, street, house_number, postal_code, city, country_code, count, remark, amount) VALUES (:name, :street, :house_number, :postal_code, :city, :country_code, :count, :remark, :amount) RETURNING id");
 
 //remove unneeded key from parameter array
 unset($filtered["g-recaptcha-response"]);
@@ -135,6 +136,6 @@ foreach($filtered as $key => $value)
 if(!$query->execute())
     exit_response(500, "insertion_failed");
 
-exit_response(200);
+exit_response(200, NULL, NULL, $query->fetch()["id"]);
 
 ?>

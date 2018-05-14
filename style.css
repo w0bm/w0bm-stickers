@@ -20,7 +20,6 @@ img {
     box-shadow: 0px 0px 13px black;
 }
 
-
 .box {
     background: #232222;
     padding: 5px;
@@ -29,6 +28,11 @@ img {
     margin-bottom: 5px;
     padding-left: 10px;
     overflow: auto;
+}
+
+a {
+    color: #008fff;
+    cursor: pointer !important;
 }
 
 form[action="send.php"] tr > td:first-of-type {
@@ -50,6 +54,10 @@ table#order_overview tr:last-of-type > td:last-of-type {
     margin-top: 5px;
 }
 
+span#order_id {
+    font-weight: bold;
+}
+
 /* flash */
 div#flash {
     position: fixed;
@@ -59,7 +67,7 @@ div#flash {
     text-align: center;
     font-weight: bold;
 }
-  
+
 div#flash.error {
     background-color: #fddfdf;
     border-bottom: 2px solid #f1a899;

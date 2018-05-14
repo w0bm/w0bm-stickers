@@ -3,10 +3,27 @@
     <head>
         <title>w0bm stickers</title>
         <script src="https://www.google.com/recaptcha/api.js"></script>
+        <script src="https://www.paypalobjects.com/api/checkout.js" data-version-4></script>
         <script src="form-submit.js"></script>
         <script src="country-select.js"></script>
         <script src="flash.js"></script>
         <script src="order_overview.js"></script>
+        <script>
+            paypal.Button.render({
+                payment: () => new paypal.Promise((resolve, reject) => {
+                    resolve();
+                }),
+                onAuthorize: data => {
+                    console.log("Payment authorized!");
+                },
+                onCancel: null,
+                style: {
+                    size: "medium",
+                    color: "blue",
+                    shape: "rect"
+                }
+            }, "div#paypal_payment");
+        </script>
         <script>
             let flash;
             document.addEventListener("DOMContentLoaded", () => flash = window.init_flash());
@@ -14,27 +31,24 @@
             const toggle_submit = val => document.querySelector('button[type="submit"]').disabled = val;
 
             function enable_submit() {
-                toggle_submit(false)
+                toggle_submit(false);
             }
-            function disable_submit(test) {
+            function disable_submit() {
                 toggle_submit(true);
             }
 
-            console.warn("create functions for prettier error displaying");
-
             function form_submit(form) {
-                console.warn("display spinner");
+                document.querySelectorAll("*").forEach(el => el.style.cursor = "wait");
             }
             function form_data(res, json, form) {
+                document.querySelectorAll("*").forEach(el => el.style.cursor = "auto");
                 if(res.status === 400 && json.error.msg === "invalid_field_value") {
                     flash({
                         type: "error",
                         msg: `Invalid value for ${json.error.subject}`
                     });
-                    //alert("Invalid value for " + json.error.subject);
                 }
                 else if(res.status === 403 && json.error.msg === "captcha_verification_failed") {
-                    //alert("Couldn't verify captcha! Resetting...");
                     flash({
                         type: "error",
                         msg: "Couldn't verify captcha! Resetting..."
@@ -42,16 +56,15 @@
                     grecaptcha.reset();
                 }
                 else if(res.ok && json.success) {
-                    //alert("Your data has been saved.");
                     flash({
                         type: "success",
                         msg: "Your data has been saved."
                     });
+                    document.querySelector("span#order_id").textContent = json.order_id;
+                    document.querySelector("div#payment").hidden = false;
+                    window.scrollTo(0, document.body.scrollHeight);
                 }
                 else {
-                    /*alert("Oops, something internal broke. Please notify an administrator: https:\/\/w0bm.com/contact\n"
-                        + `${res.status} ${res.statusText}\n${JSON.stringify(json)}`
-                    );*/
                     flash({
                         type: "error",
                         msg: "Oops, something internal broke. Please notify an administrator: https:\/\/w0bm.com/contact\n"
@@ -60,7 +73,6 @@
                 }
             }
             function form_error(error, form) {
-                //alert("submit error:\n" + JSON.stringify(error));
                 flash({
                     type: "error",
                     msg: "submit error: " + JSON.stringify(error)
@@ -155,6 +167,12 @@
                         </tbody>
                     </table>
                 </form>
+                <div id="payment" hidden>
+                    <p>Your order id is: <span id="order_id"></span><p>
+                    <p>You should save it somewhere, you'll be able to get your tracking number with your order id <a href="#">here</a>.</p>
+                    <p>You can now pay your order:</b></p>
+                    <div id="paypal_payment"></div>
+                </div>
             </div>
         </div>
     </body>
