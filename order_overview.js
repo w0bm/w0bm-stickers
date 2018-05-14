@@ -30,7 +30,7 @@ window.addEventListener("load", () => {
             shipping_cost = 3.2;
         shipping.textContent = (shipping_cost).toFixed(2);
         const total_price = number_of_items * price_per_item + packaging_cost + shipping_cost;
-        const pp_fee = total_price * 0.19 + 0.35;
+        const pp_fee = (total_price * 0.19 + 0.35) / 0.81;
         paypal.textContent = (pp_fee).toFixed(2);
         total.textContent = (total_price + pp_fee).toFixed(2);
     };

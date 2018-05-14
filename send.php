@@ -124,9 +124,15 @@ if($filtered["country_code"] === "DE") {
 else
     $shipping_cost = 320;
 
-$total = ($price_per_item * $filtered["count"] + $packaging_cost + $shipping_cost) / 100;
+$total = $price_per_item * $filtered["count"] + $packaging_cost + $shipping_cost;
 
-$query->bindValue(":amount", $total);
+/*
+ * pp_fee = 0.19 * great_total + 0.35
+ * great_total = total + pp_fee
+ */
+$pp_fee = ($total * 19 + 35) / 81;
+
+$query->bindValue(":amount", ($total + $pp_fee) / 100);
 
 //bind values
 foreach($filtered as $key => $value)
