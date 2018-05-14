@@ -9,30 +9,30 @@ window.addEventListener("load", () => {
         , count = sel_elem('input[name="count"]')
         , country = sel_elem('select[name="country_code"]');
     const update_order_overview = () => {
-        const price_per_item = 1
+        const price_per_item = 100
             , item_weight = 2;
         const number_of_items = parseInt(count.value);
         item_count.textContent = number_of_items;
-        item_price.textContent = (number_of_items * price_per_item).toFixed(2);
-        const packaging_cost = 1;
-        packaging.textContent = (packaging_cost).toFixed(2);
+        item_price.textContent = ((number_of_items * price_per_item) / 100).toFixed(2);
+        const packaging_cost = 100;
+        packaging.textContent = (packaging_cost / 100).toFixed(2);
         let shipping_cost;
         if(country.value === "DE") {
             if(number_of_items * item_weight <= 20)
-                shipping_cost = 0.7 ;
+                shipping_cost = 70;
             else if(number_of_items * item_weight <= 50)
-                shipping_cost = 0.85;
+                shipping_cost = 85;
             else if(number_of_items * item_weight <= 500)
-                shipping_cost = 1.45;
-            shipping_cost += 0.9;
+                shipping_cost = 145;
+            shipping_cost += 90;
         }
         else
-            shipping_cost = 3.2;
-        shipping.textContent = (shipping_cost).toFixed(2);
+            shipping_cost = 320;
+        shipping.textContent = (shipping_cost / 100).toFixed(2);
         const total_price = number_of_items * price_per_item + packaging_cost + shipping_cost;
-        const pp_fee = (total_price * 0.19 + 0.35) / 0.81;
-        paypal.textContent = (pp_fee).toFixed(2);
-        total.textContent = (total_price + pp_fee).toFixed(2);
+        const pp_fee = Math.ceil((total_price * 0.19 + 35) / 0.81);
+        paypal.textContent = (pp_fee / 100).toFixed(2);
+        total.textContent = ((total_price + pp_fee) / 100).toFixed(2);
     };
     count.addEventListener("change", update_order_overview);
     country.addEventListener("change", update_order_overview);
