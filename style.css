@@ -8,19 +8,19 @@ body {
     background: #161618;
 }
 
-.content {
+div.content {
     margin-left: 50px;
     margin-right: 50px;
 }
 
-img {
+img[alt="w0bm logo"] {
     float: right;
     border: 1px solid white;
     background: white;
     box-shadow: 0px 0px 13px black;
 }
 
-.box {
+div.box {
     background: #232222;
     padding: 5px;
     padding-left: 5px;
@@ -33,6 +33,27 @@ img {
 a {
     color: #008fff;
     cursor: pointer !important;
+}
+
+div#overlay_veil {
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+div#overlay_content {
+    background-color: #232222;
+    z-index: 1;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 10px;
+    display: table;
+    padding: 20px;
 }
 
 form[action="send.php"] tr > td:first-of-type {
@@ -56,6 +77,12 @@ table#order_overview tr:last-of-type > td:last-of-type {
 
 span#order_id {
     font-weight: bold;
+}
+
+div#payment {
+    text-align: center;
+    vertical-align: middle;
+    display: table-cell;
 }
 
 /* flash */
