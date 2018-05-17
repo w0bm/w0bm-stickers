@@ -123,3 +123,7 @@ p#payment_result.success {
 p#payment_result.error {
     color: red;
 }
+
+p#payment_result > span.payment_warn {
+    color: yellow;
+}

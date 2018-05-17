@@ -10,7 +10,7 @@
         <script src="order_overview.js"></script>
         <script>
             let flash, order_id;
-            const add_payment_result = cl => {
+            const add_payment_result = (cl, warn) => {
                 const payment = document.querySelector("div#payment"),
                       prev_result = document.querySelector("p#payment_result");
                 let el = document.createElement("p");
@@ -20,6 +20,10 @@
                     cl === "error"
                     ? "Payment cancelled!"
                     : "Payment executed successfully!";
+                if(warn)
+                    el.innerHTML
+                        = el.innerHTML
+                        + `<br/><span class="payment_warn">${warn}</span>`;
                 if(prev_result)
                     prev_result.remove();
                 if(cl === "success")
@@ -61,7 +65,12 @@
                                 type: "success",
                                 msg: "Payment executed successfully!"
                             });
-                            add_payment_result("success");
+                            add_payment_result(
+                                "success",
+                                json.error.msg === "payment_insertion_failed"
+                                ? "Unfortunately we  were not able to store your payment on our side.<br/>Please notify an administrator and sorry for the inconvenience."
+                                : null
+                            );
                         }
                         else {
                             flash({
@@ -162,7 +171,7 @@
                 <div id="payment">
                     <p>Your order id is: <span id="order_id"></span><p>
                     <p>You should save it somewhere, you'll be able to get your tracking number with your order id <a href="#">here</a>.</p>
-                    <p>You can now pay your order:</b></p>
+                    <p>You can now pay your order:</p>
                     <div id="paypal_payment"></div>
                 </div>
             </div>
