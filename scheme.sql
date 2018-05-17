@@ -28,5 +28,6 @@ CREATE TABLE payments (
     order_id UUID NOT NULL REFERENCES orders (id),
     amount NUMERIC(4,2) NOT NULL,
     payment_method VARCHAR(10) NOT NULL,
+    transaction VARCHAR(20) NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

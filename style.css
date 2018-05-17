@@ -110,3 +110,16 @@ div#flash.warn {
     border-bottom: 2px solid #dad55e;
     color: #777620;
 }
+
+p#payment_result {
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+p#payment_result.success {
+    color: green;
+}
+
+p#payment_result.error {
+    color: red;
+}

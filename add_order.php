@@ -2,19 +2,6 @@
 
 require_once("config.php");
 
-function exit_response($status, $error = NULL, $subject = NULL, $order_id = NULL) {
-    header("Content-type: application/json");
-    http_response_code($status);
-    exit(json_encode([
-        "success" => $status === 200,
-        "order_id" => $order_id,
-        "error" => $error ? [
-            "msg" => $error,
-            "subject" => $subject
-        ] : NULL
-    ]));
-}
-
 //string trim and filter function
 function validate_and_trim_string($val) {
     if(is_string($val)) {
@@ -29,7 +16,7 @@ function validate_and_trim_string($val) {
 
 //------------- VALIDATE REQUEST -------------
 if($_SERVER["REQUEST_METHOD"] !== "POST")
-    exit_response(400, "invalid_request_method");
+    exit_response(405, c_error("invalid_request_method"));
 
 $def = [
     "name" => [
@@ -71,9 +58,9 @@ $filtered = filter_input_array(INPUT_POST, $def);
 
 foreach($filtered as $key => $val) {
     if($val === false)
-        exit_response(400, "invalid_field_value", $key);
-    if($val === NULL)
-        exit_response(400, "missing_field", $key);
+        exit_response(400, c_error("invalid_field_value", $key));
+    if($val === null)
+        exit_response(400, c_error("missing_field", $key));
 }
 
 $filtered["remark"] = !empty(trim($filtered["remark"])) ? $filtered["remark"] : null;
@@ -81,22 +68,20 @@ $filtered["remark"] = !empty(trim($filtered["remark"])) ? $filtered["remark"] : 
 
 
 //------------ VALIDATE CAPTCHA -------------
-$url = "https://www.google.com/recaptcha/api/siteverify";
-$data = [
-    "secret" => $cfg_recaptcha_secret,
-    "response" => $filtered["g-recaptcha-response"]
-];
-
-$res = file_get_contents($url, false, stream_context_create([
-    "http" => [
-        "method" => "POST",
-        "content" => http_build_query($data),
-        "header" => "Content-Type: application/x-www-form-urlencoded"
+$res = fetch(
+    "https://www.google.com/recaptcha/api/siteverify",
+    "POST",
+    [
+        "secret" => $cfg_recaptcha_secret,
+        "response" => $filtered["g-recaptcha-response"]
     ]
-]));
+);
 
-if(json_decode($res, true)["success"] === false)
-    exit_response(403, "captcha_verification_failed");
+if($res === false)
+    exit_response(500, c_error("captcha_verification_failed"));
+
+if(json_decode($res)->success === false)
+    exit_response(403, c_error("captcha_verification_failed"));
 
 
 
@@ -140,8 +125,8 @@ foreach($filtered as $key => $value)
 
 //execute query with parameters
 if(!$query->execute())
-    exit_response(500, "insertion_failed");
+    exit_response(500, c_error("insertion_failed"));
 
-exit_response(200, NULL, NULL, $query->fetch()["id"]);
+exit_response(200, null, ["order_id" => $query->fetch()["id"]]);
 
 ?>

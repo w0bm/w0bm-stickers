@@ -9,23 +9,90 @@
         <script src="flash.js"></script>
         <script src="order_overview.js"></script>
         <script>
+            let flash, order_id;
+            const add_payment_result = cl => {
+                const payment = document.querySelector("div#payment"),
+                      prev_result = document.querySelector("p#payment_result");
+                let el = document.createElement("p");
+                el.id = "payment_result";
+                el.classList.add(cl);
+                el.textContent =
+                    cl === "error"
+                    ? "Payment cancelled!"
+                    : "Payment executed successfully!";
+                if(prev_result)
+                    prev_result.remove();
+                if(cl === "success")
+                    document.querySelector("div#paypal_payment").hidden = true;
+                payment.appendChild(el);
+            };
+
+            const please_wait = b => document.querySelectorAll("*").forEach(el => el.style.cursor = b ? "wait" : "auto");
+
             paypal.Button.render({
                 payment: () => new paypal.Promise((resolve, reject) => {
-                    resolve();
+                    let data = new FormData();
+                    data.set("order_id", order_id);
+                    fetch("create_payment.php", {
+                        method: "POST",
+                        body: data
+                    }).then(async res => {
+                        const json = await res.json();
+                        if(res.ok && res.status === 200)
+                            resolve(json.data.payment_id);
+                        else
+                            reject(json);
+                    }).catch(reject);
                 }),
                 onAuthorize: data => {
-                    console.log("Payment authorized!");
+                    please_wait(true);
+                    let formdata = new FormData();
+                    formdata.set("order_id", order_id);
+                    formdata.set("payer_id", data.payerID);
+                    formdata.set("payment_id", data.paymentID);
+                    fetch("execute_payment.php", {
+                        method: "POST",
+                        body: formdata
+                    }).then(async res => {
+                        please_wait(false);
+                        const json = await res.json();
+                        if(res.ok && res.status === 200) {
+                            flash({
+                                type: "success",
+                                msg: "Payment executed successfully!"
+                            });
+                            add_payment_result("success");
+                        }
+                        else {
+                            flash({
+                                type: "error",
+                                msg: "Payment execution failed!"
+                            });
+                            add_payment_result("error");
+                        }
+                    }).catch(err => {
+                        please_wait(false);
+                        flash({
+                            type: "error",
+                            msg: "Payment execution failed!"
+                        });
+                        add_payment_result("error");
+                    });
                 },
-                onCancel: null,
+                onCancel: data => {
+                    flash({
+                        type: "error",
+                        msg: "The payment has been cancelled!"
+                    });
+                    add_payment_result("error");
+                },
                 style: {
                     size: "medium",
                     color: "blue",
                     shape: "rect"
                 }
             }, "div#paypal_payment");
-        </script>
-        <script>
-            let flash;
+
             document.addEventListener("DOMContentLoaded", () => flash = window.init_flash());
 
             const toggle_submit = val => document.querySelector('button[type="submit"]').disabled = val;
@@ -38,31 +105,37 @@
             }
 
             function form_submit(form) {
-                document.querySelectorAll("*").forEach(el => el.style.cursor = "wait");
+                please_wait(true);
             }
             function form_data(res, json, form) {
-                document.querySelectorAll("*").forEach(el => el.style.cursor = "auto");
+                please_wait(false);
                 if(res.status === 400 && json.error.msg === "invalid_field_value") {
                     flash({
                         type: "error",
                         msg: `Invalid value for ${json.error.subject}`
                     });
                 }
-                else if(res.status === 403 && json.error.msg === "captcha_verification_failed") {
+                else if(res.status == 403 && json.error.msg === "captcha_verification_failed") {
                     flash({
                         type: "error",
                         msg: "Couldn't verify captcha! Resetting..."
                     });
                     grecaptcha.reset();
                 }
+                else if(res.status === 500 && json.error.msg === "captcha_verification_failed") {
+                    flash({
+                        type: "error",
+                        msg: "Couldn't verify captcha! This is an internal error, please notify an administrator!"
+                    });
+                }
                 else if(res.ok && json.success) {
                     flash({
                         type: "success",
                         msg: "Your data has been saved."
                     });
-                    document.querySelector("span#order_id").textContent = json.order_id;
+                    grecaptcha.reset();
+                    document.querySelector("span#order_id").textContent = order_id = json.data.order_id;
                     document.querySelector("div#overlay").hidden = false;
-                    window.scrollTo(0, document.body.scrollHeight);
                 }
                 else {
                     flash({
@@ -73,6 +146,7 @@
                 }
             }
             function form_error(error, form) {
+                please_wait(false);
                 flash({
                     type: "error",
                     msg: "submit error: " + JSON.stringify(error)
@@ -113,7 +187,7 @@
                 <p>Your information is only stored on our server for the time of this event, if the event is over we will wipe everything related to you, please don't make a connection to your account, we don't want to know who you are, we just want to sell you a nice sticker!</p>
                 <p>Please note that the final price is not for everyone the same, because the shipping to differend countries costs differend amount of moneyz, but inside of Germany it wont be a big problem and it will be fast and painless, since we are not going to use Hermes!</p>
                 <p>If you have any questions related to this event or your order you can always reach us in the IRC directly. Please contact jkhsjdhjs or sirX</p>
-                <form class="js-submit" data-submit-callback="form_submit" data-callback="form_data" data-error-callback="form_error" action="send.php" method="POST">
+                <form class="js-submit" data-submit-callback="form_submit" data-callback="form_data" data-error-callback="form_error" action="add_order.php" method="POST">
                     <table>
                         <tbody>
                             <tr>
