@@ -21,7 +21,7 @@ $dbh = new PDO("pgsql:dbname=w0bm-stickers", "w0bm-stickers");
 $query = $dbh->prepare("SELECT amount FROM orders WHERE id = :order_id");
 
 if(!$query->execute([":order_id" => $order_id]))
-    exit_response(400, c_error("invalid_field_value", "order_id"));
+    exit_response(404, c_error("order_not_found", "order_id"));
 
 $amount = $query->fetch()["amount"];
 
@@ -59,7 +59,7 @@ $payment = [
     ],
     "transactions" => [[
         "amount" => [
-            "total" => strval(0.01),
+            "total" => strval($amount),
             "currency" => "EUR"
         ]
     ]],
