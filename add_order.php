@@ -86,7 +86,7 @@ if(json_decode($res)->success === false)
 
 
 //------------- INSERT ORDER -------------
-$dbh = new PDO("pgsql:dbname=w0bm-stickers", "w0bm-stickers");
+$dbh = new PDO($cfg_pgsql_dsn);
 $query = $dbh->prepare("INSERT INTO orders (name, street, house_number, postal_code, city, country_code, count, remark, amount) VALUES (:name, :street, :house_number, :postal_code, :city, :country_code, :count, :remark, :amount) RETURNING id");
 
 //remove unneeded key from parameter array

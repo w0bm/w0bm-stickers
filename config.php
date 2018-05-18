@@ -3,6 +3,7 @@
 $cfg_recaptcha_secret = '';
 $cfg_paypal_clientid = '';
 $cfg_paypal_secret = '';
+$cfg_pgsql_dsn = 'pgsql:dbname=w0bm-stickers;user=w0bm-stickers';
 
 function exit_response($status, $error = null, $data = null) {
     header("Content-type: application/json");

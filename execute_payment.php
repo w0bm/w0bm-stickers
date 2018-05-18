@@ -57,7 +57,7 @@ if($json->state !== "approved")
 
 
 //-------------- INSERT PAYMENT --------------
-$dbh = new PDO("pgsql:dbname=w0bm-stickers", "w0bm-stickers");
+$dbh = new PDO($cfg_pgsql_dsn);
 $fail = false;
 foreach($json->transactions as $t) {
     $query = $dbh->prepare("INSERT INTO payments (order_id, amount, transaction, payment_method) VALUES (:order_id, :amount, :transaction, 'PayPal')");
