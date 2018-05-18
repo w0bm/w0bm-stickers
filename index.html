@@ -287,7 +287,7 @@
                 <form class="js-submit" data-submit-callback="status_submit" data-callback="status_data" data-error-callback="form_error" action="check_status.php" method="POST">
                     <table>
                         <tbody>
-                            <tr><td><input type="text" name="order_id" placeholder="Order ID" pattern="" required/></td></tr>
+                            <tr><td><input type="text" name="order_id" placeholder="Order ID" pattern="[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}" required/></td></tr>
                             <tr><td><div class="g-recaptcha" data-sitekey="6LfAzlUUAAAAAGN0xhJx8hEahcVR1bpg7PUmAMwb" data-callback="enable_status_submit" data-expired-callback="disable_status_submit" data-theme="dark"></div></td></tr>
                             <tr><td><button type="submit" disabled>Check Status</button></td></tr>
                         </tbody>
