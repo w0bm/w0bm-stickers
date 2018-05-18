@@ -80,7 +80,7 @@
             };
 
             const toggle_order_submit = val => document.querySelector('form[action="add_order.php"] button[type="submit"]').disabled = val;
-            const toggle_status_submit = val => document.querySelector('form[action="check_status.php"] button[type="submit"]').disabled = val;
+            const toggle_status_submit = val => document.querySelector('form[action="order_status.php"] button[type="submit"]').disabled = val;
 
             function enable_order_submit() {
                 toggle_order_submit(false);
@@ -219,14 +219,58 @@
                     type: "error",
                     msg: "submit error: " + JSON.stringify(error)
                 });
+                console.error(error);
             }
 
             function status_submit(form) {
                 overlay.show_spinner();
             }
             function status_data(res, json, form) {
-                overlay.show_order_status();
-                overlay.set_allow_hide(true);
+                if(res.status === 400 && json.error.msg === "invalid_field_value") {
+                    flash({
+                        type: "error",
+                        msg: "Invalid value for " + json.error.subject
+                    });
+                    overlay.hide();
+                }
+                else if(res.status === 403 && json.error.msg === "captcha_verification_failed") {
+                    flash({
+                        type: "error",
+                        msg: "Captcha verification failed!"
+                    });
+                    overlay.hide();
+                }
+                else if(res.status === 405) {
+                    flash({
+                        type: "error",
+                        msg: "Apparently your browser is unable to send post requests..."
+                    });
+                    overlay.hide();
+                }
+                else if(res.status === 500) {
+                    flash({
+                        type: "error",
+                        msg: "Something internal broke/went wrong: " + JSON.stringify(json.error)
+                    });
+                    console.error(res, json, form);
+                }
+                else if(res.ok && json.success) {
+                    document.querySelector("div#order_status span.not_paid").hidden = json.data.paid;
+                    document.querySelector("div#order_status span.not_shipped").hidden = !json.data.shipments;
+                    document.querySelector("table#shipments").hidden = !!json.data.shipments;
+                    const tbody = document.querySelector("table#shipments tbody");
+                    json.data.shipments.forEach(shipment => {
+                        let row = document.createElement("tr");
+                        let col1 = document.createElement("td"), col2 = document.createElement("td");
+                        col1.textContent = shipment.shipping_company;
+                        col2.textContent = shipment.shipment_id;
+                        row.appendChild(col1);
+                        row.appendChild(col2);
+                        tbody.appendChild(row);
+                    });
+                    overlay.show_order_status();
+                    overlay.set_allow_hide(true);
+                }
             }
         </script>
     </head>
@@ -255,7 +299,19 @@
                     <div id="paypal_payment"></div>
                 </div>
                 <div id="order_status" hidden>
-                    <p>Your order has <span id="order_status_paid" hidden>not </span>been paid.</p>
+                    <p>Your order has <span class="not_paid" hidden>not </span>been paid.</p>
+                    <p>Your order has <span class="not_shipped" hidden>not </span>been shipped.</p>
+                    <table id="shipments" hidden>
+                        <caption>Shipments:</caption>
+                        <thead>
+                            <tr>
+                                <th>Shipping Company</th>
+                                <th>Tracking Code</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -351,8 +407,8 @@
                 </form>
             </div>
             <div class="box">
-                <h3>Check the status of your order here <span style="color: red;">(NOT IMPLEMENTED YET)</span>:</h3>
-                <form class="js-submit" data-submit-callback="status_submit" data-callback="status_data" data-error-callback="form_error" action="check_status.php" method="POST">
+                <h3>Check the status of your order here:</h3>
+                <form class="js-submit" data-submit-callback="status_submit" data-callback="status_data" data-error-callback="form_error" action="order_status.php" method="POST">
                     <table>
                         <tbody>
                             <tr><td><input type="text" name="order_id" placeholder="Order ID" pattern="[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}" required/></td></tr>

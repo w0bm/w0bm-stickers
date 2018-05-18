@@ -168,8 +168,18 @@ p#payment_result > span.payment_warn {
     color: yellow;
 }
 
-span#order_status_paid {
+div#order_status span.not_paid, div#order_status span.not_shipped {
     color: red;
+}
+
+table#shipments th {
+    background: #161618;
+    border: 1px solid black;
+}
+
+table#shipments td {
+    background: #363638;
+    border: 1px solid black;
 }
 
 /* Spinner */
