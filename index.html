@@ -11,12 +11,56 @@
         <script src="flash.js"></script>
         <script src="order_overview.js"></script>
         <script>
-            let flash, order_id;
-            document.addEventListener("DOMContentLoaded", () => flash = window.init_flash());
+            class Overlay {
+                constructor() {
+                    this.main = document.querySelector("div#overlay");
+                    this.veil = document.querySelector("div#overlay_veil");
+                    this.spinner = document.querySelector("div#overlay_spinner");
+                    this.payment = document.querySelector("div#payment");
+                    this.order_status = document.querySelector("div#order_status");
+                    this.allow_hide = false;
+                    this.veil.addEventListener("click", () => {
+                        if(this.allow_hide) {
+                            this.main.hidden = true;
+                            this.allow_hide = false;
+                        }
+                    });
+                }
+                set_allow_hide(b) {
+                    this.allow_hide = b;
+                }
+                show_spinner() {
+                    this.payment.hidden = true;
+                    this.order_status.hidden = true;
+                    this.main.hidden = false;
+                    this.spinner.hidden = false;
+                }
+                show_payment() {
+                    this.spinner.hidden = true;
+                    this.order_status.hidden = true;
+                    this.main.hidden = false;
+                    this.payment.hidden = false;
+                }
+                show_order_status() {
+                    this.spinner.hidden = true;
+                    this.payment.hidden = true;
+                    this.main.hidden = false;
+                    this.order_status.hidden = false;
+                }
+                hide() {
+                    this.main.hidden = true;
+                    this.allow_hide = false;
+                }
+            }
+
+            let flash, order_id, overlay;
+            document.addEventListener("DOMContentLoaded", () => {
+                flash = window.init_flash();
+                overlay = new Overlay();
+            });
 
             const add_payment_result = (cl, warn) => {
-                const payment = document.querySelector("div#payment"),
-                      prev_result = document.querySelector("p#payment_result");
+                const prev_result = document.querySelector("p#payment_result");
                 let el = document.createElement("p");
                 el.id = "payment_result";
                 el.classList.add(cl);
@@ -32,10 +76,8 @@
                     prev_result.remove();
                 if(cl === "success")
                     document.querySelector("div#paypal_payment").hidden = true;
-                payment.appendChild(el);
+                overlay.payment.appendChild(el);
             };
-
-            const please_wait = b => document.querySelectorAll("*").forEach(el => b ? el.style.cursor = "wait" : el.style.removeProperty("cursor"));
 
             const toggle_order_submit = val => document.querySelector('form[action="add_order.php"] button[type="submit"]').disabled = val;
             const toggle_status_submit = val => document.querySelector('form[action="check_status.php"] button[type="submit"]').disabled = val;
@@ -69,7 +111,7 @@
                     }).catch(reject);
                 }),
                 onAuthorize: data => {
-                    please_wait(true);
+                    overlay.show_spinner();
                     let formdata = new FormData();
                     formdata.set("order_id", order_id);
                     formdata.set("payer_id", data.payerID);
@@ -78,7 +120,7 @@
                         method: "POST",
                         body: formdata
                     }).then(async res => {
-                        please_wait(false);
+                        overlay.show_payment();
                         const json = await res.json();
                         if(res.ok && res.status === 200) {
                             flash({
@@ -91,6 +133,7 @@
                                 ? "Unfortunately we  were not able to store your payment on our side.<br/>Please notify an administrator and sorry for the inconvenience."
                                 : null
                             );
+                            overlay.set_allow_hide(true);
                         }
                         else {
                             flash({
@@ -100,7 +143,7 @@
                             add_payment_result("error");
                         }
                     }).catch(err => {
-                        please_wait(false);
+                        overlay.show_payment();
                         flash({
                             type: "error",
                             msg: "Payment execution failed!"
@@ -123,21 +166,24 @@
             }, "div#paypal_payment");
 
             function order_submit(form) {
-                please_wait(true);
+                document.querySelector("div#overlay").hidden = false;
+                overlay.show_spinner();
             }
             function order_data(res, json, form) {
-                please_wait(false);
+                overlay.show_payment();
                 if(res.status === 400 && json.error.msg === "invalid_field_value") {
                     flash({
                         type: "error",
                         msg: `Invalid value for ${json.error.subject}`
                     });
+                    overlay.hide();
                 }
                 else if(res.status == 403 && json.error.msg === "captcha_verification_failed") {
                     flash({
                         type: "error",
                         msg: "Couldn't verify captcha! Resetting..."
                     });
+                    overlay.hide();
                     grecaptcha.reset();
                     disable_order_submit();
                 }
@@ -146,6 +192,7 @@
                         type: "error",
                         msg: "Couldn't verify captcha! This is an internal error, please notify an administrator!"
                     });
+                    overlay.hide();
                 }
                 else if(res.ok && json.success) {
                     flash({
@@ -155,7 +202,7 @@
                     grecaptcha.reset();
                     disable_order_submit();
                     document.querySelector("span#order_id").textContent = order_id = json.data.order_id;
-                    document.querySelector("div#overlay").hidden = false;
+                    overlay.show_payment();
                 }
                 else {
                     flash({
@@ -163,10 +210,11 @@
                         msg: "Oops, something internal broke. Please notify an administrator: https:\/\/w0bm.com/contact\n"
                             + `${res.status} ${res.statusText}\n${JSON.stringify(json)}`
                     });
+                    overlay.hide();
                 }
             }
             function form_error(error, form) {
-                please_wait(false);
+                overlay.hide();
                 flash({
                     type: "error",
                     msg: "submit error: " + JSON.stringify(error)
@@ -174,10 +222,11 @@
             }
 
             function status_submit(form) {
-                please_wait(true);
+                overlay.show_spinner();
             }
             function status_data(res, json, form) {
-                please_wait(false);
+                overlay.show_order_status();
+                overlay.set_allow_hide(true);
             }
         </script>
     </head>
@@ -185,11 +234,28 @@
         <div id="overlay" hidden>
             <div id="overlay_veil"></div>
             <div id="overlay_content">
-                <div id="payment">
+                <div id="overlay_spinner" hidden>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div id="payment" hidden>
                     <p>Your order id is: <span id="order_id"></span><p>
-                    <p>You should save it somewhere, you'll be able to get your tracking number with your order id <a href="#">here</a>.</p>
+                    <p>You should save it somewhere, you'll be able to get your tracking number with it.</p>
                     <p>You can now pay your order:</p>
                     <div id="paypal_payment"></div>
+                </div>
+                <div id="order_status" hidden>
+                    <p>Your order has <span id="order_status_paid" hidden>not </span>been paid.</p>
                 </div>
             </div>
         </div>
