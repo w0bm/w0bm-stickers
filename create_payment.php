@@ -1,6 +1,6 @@
 <?php
 
-require_once("config.php");
+require_once "config.php";
 
 //------------- VALIDATE REQUEST -------------
 if($_SERVER["REQUEST_METHOD"] !== "POST")

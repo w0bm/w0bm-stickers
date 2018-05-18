@@ -1,6 +1,6 @@
 <?php
 
-require_once("config.php");
+require_once "config.php";
 
 //string trim and filter function
 function validate_and_trim_string($val) {

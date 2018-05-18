@@ -1,6 +1,6 @@
 <?php
 
-require_once("config.php");
+require_once "config.php";
 
 const FIELDS = ["order_id", "payment_id", "payer_id"];
 
