@@ -21,7 +21,7 @@ list($order_id, $payment_id, $payer_id) = array_map(function($k) {
 
 
 
-//----------- PAYPAL AUTHROZIATION -----------
+//----------- PAYPAL AUTHORIZATION -----------
 $res = fetch(
     "https://api.paypal.com/v1/oauth2/token",
     "POST",
