@@ -4,7 +4,7 @@ body {
     font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 14px;
     line-height: 1.42857143;
-    color: #888888;
+    color: #888;
     background: #161618;
 }
 
@@ -83,6 +83,16 @@ div#overlay_content {
 
 form[action="add_order.php"] tr > td:first-of-type {
     vertical-align: top;
+}
+
+form[action="add_order.php"] tr:first-of-type > td:nth-of-type(2) > input {
+    margin-bottom: 4px;
+}
+
+input, select, textarea {
+    background: #161618;
+    border: 1px solid black;
+    color: #ccc;
 }
 
 table#order_overview {
