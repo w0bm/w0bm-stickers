@@ -122,15 +122,15 @@
                     }).then(async res => {
                         overlay.show_payment();
                         const json = await res.json();
-                        if(res.ok && res.status === 200) {
+                        if(res.ok) {
                             flash({
                                 type: "success",
                                 msg: "Payment executed successfully!"
                             });
                             add_payment_result(
                                 "success",
-                                json.error.msg === "payment_insertion_failed"
-                                ? "Unfortunately we  were not able to store your payment on our side.<br/>Please notify an administrator and sorry for the inconvenience."
+                                (json.error && json.error.msg === "payment_insertion_failed")
+                                ? "Unfortunately we were not able to store your payment on our side.<br/>Please notify an administrator and sorry for the inconvenience."
                                 : null
                             );
                             overlay.set_allow_hide(true);
