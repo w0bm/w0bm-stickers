@@ -115,7 +115,7 @@ $total = $price_per_item * $filtered["count"] + $packaging_cost + $shipping_cost
  * pp_fee = 0.19 * great_total + 0.35
  * great_total = total + pp_fee
  */
-$pp_fee = ceil(($total * 0.19 + 35) / 0.81);
+$pp_fee = ceil(($total * 0.019 + 35) / 0.981);
 
 $query->bindValue(":amount", ($total + $pp_fee) / 100);
 
