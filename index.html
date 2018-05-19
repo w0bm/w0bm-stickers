@@ -255,21 +255,30 @@
                     console.error(res, json, form);
                 }
                 else if(res.ok && json.success) {
-                    document.querySelector("div#order_status span.not_paid").hidden = json.data.paid;
-                    document.querySelector("div#order_status span.not_shipped").hidden = !json.data.shipments;
-                    document.querySelector("table#shipments").hidden = !!json.data.shipments;
-                    const tbody = document.querySelector("table#shipments tbody");
-                    json.data.shipments.forEach(shipment => {
-                        let row = document.createElement("tr");
-                        let col1 = document.createElement("td"), col2 = document.createElement("td");
-                        col1.textContent = shipment.shipping_company;
-                        col2.textContent = shipment.shipment_id;
-                        row.appendChild(col1);
-                        row.appendChild(col2);
-                        tbody.appendChild(row);
-                    });
-                    overlay.show_order_status();
-                    overlay.set_allow_hide(true);
+                    if(json.error) {
+                        flash({
+                            type: "error",
+                            msg: "No order with that ID found!"
+                        });
+                        overlay.hide();
+                    }
+                    else {
+                        document.querySelector("div#order_status span.not_paid").hidden = json.data.paid;
+                        document.querySelector("div#order_status span.not_shipped").hidden = !json.data.shipments;
+                        document.querySelector("table#shipments").hidden = !!json.data.shipments;
+                        const tbody = document.querySelector("table#shipments tbody");
+                        json.data.shipments.forEach(shipment => {
+                            let row = document.createElement("tr");
+                            let col1 = document.createElement("td"), col2 = document.createElement("td");
+                            col1.textContent = shipment.shipping_company;
+                            col2.textContent = shipment.shipment_id;
+                            row.appendChild(col1);
+                            row.appendChild(col2);
+                            tbody.appendChild(row);
+                        });
+                        overlay.show_order_status();
+                        overlay.set_allow_hide(true);
+                    }
                 }
             }
         </script>

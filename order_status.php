@@ -49,6 +49,9 @@ $query = $dbh->prepare("SELECT amount FROM payments WHERE order_id = :order_id")
 if(!$query->execute([":order_id" => $order_id]))
     exit_response(500, c_error("database_error", "payments"));
 
+if($query->rowCount() === 0)
+    exit_response(200, c_error("not_found", "order_id"));
+
 $total = 0;
 while(($row = $query->fetch()) !== false)
     $total += intval(floatval($row["amount"]) * 100);
