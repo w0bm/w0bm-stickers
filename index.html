@@ -178,7 +178,7 @@
                     });
                     overlay.hide();
                 }
-                else if(res.status == 403 && json.error.msg === "captcha_verification_failed") {
+                else if(res.status === 403 && json.error.msg === "captcha_verification_failed") {
                     flash({
                         type: "error",
                         msg: "Couldn't verify captcha! Resetting..."
@@ -186,6 +186,13 @@
                     overlay.hide();
                     grecaptcha.reset();
                     disable_order_submit();
+                }
+                else if(res.status === 403 && json.error.msg === "ordering_disabled") {
+                    flash({
+                        type: "error",
+                        msg: "Ordering is not possible anymore!"
+                    });
+                    overlay.hide();
                 }
                 else if(res.status === 500 && json.error.msg === "captcha_verification_failed") {
                     flash({
@@ -345,6 +352,8 @@
                 <p>This page is open source on <a target="_blank" href="https://github.com/w0bm/w0bm-stickers">GitHub</a>, feel free to check the code or report issues!</p>
                 <h2>Unanswered Questions?</h2>
                 <p>If your question wasn't answered on this page feel free to ask us on Discord or via IRC!</p>
+                <h2>Progress</h2>
+                <p>01.06.2018: The stickers have been ordered at stickermule. They will approximately arrive between 10<sup>th</sup> and 15<sup>th</sup> of June.</p>
             </div>
 
             <div class="box">

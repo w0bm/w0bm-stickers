@@ -2,6 +2,8 @@
 
 require_once "config.php";
 
+exit_response(403, c_error("ordering_disabled"));
+
 //string trim and filter function
 function validate_and_trim_string($val) {
     if(is_string($val)) {
