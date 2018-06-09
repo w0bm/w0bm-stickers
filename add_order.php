@@ -20,6 +20,11 @@ function validate_and_trim_string($val) {
 if($_SERVER["REQUEST_METHOD"] !== "POST")
     exit_response(405, c_error("invalid_request_method"));
 
+$dbh = new PDO($cfg_pgsql_dsn);
+$query = $dbh->prepare("SELECT SUM(count) FROM orders");
+if(!$query->execute())
+    exit_response(500, c_error("database_error"));
+
 $def = [
     "name" => [
         "filter" => FILTER_VALIDATE_REGEXP,
@@ -49,7 +54,7 @@ $def = [
         "filter" => FILTER_VALIDATE_INT,
         "options" => [
             "min_range" => 1,
-            "max_range" => 100
+            "max_range" => 93 - $query->fetch()[0]
         ]
     ],
     "remark" => FILTER_DEFAULT,
@@ -88,7 +93,6 @@ if(json_decode($res)->success === false)
 
 
 //------------- INSERT ORDER -------------
-$dbh = new PDO($cfg_pgsql_dsn);
 $query = $dbh->prepare("INSERT INTO orders (name, street, house_number, postal_code, city, country_code, count, remark, amount) VALUES (:name, :street, :house_number, :postal_code, :city, :country_code, :count, :remark, :amount) RETURNING id");
 
 //remove unneeded key from parameter array
