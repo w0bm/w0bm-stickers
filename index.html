@@ -288,6 +288,15 @@
                     }
                 }
             }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                fetch("/remaining_stickers.php")
+                    .then(res => res.json().then(json => {
+                        document.querySelector("#remaining_stickers").textContent = json.data.stickers_count;
+                        document.querySelector("input[name='count']").setAttribute("max", json.data.stickers_count);
+                    }))
+                    .catch(console.error);
+            });
         </script>
     </head>
     <body>
@@ -357,7 +366,7 @@
             </div>
 
             <div class="box">
-                <h3>Here you can place your order:</h3>
+                <h3>Here you can place your order (<span id="remaining_stickers"></span> remaining):</h3>
                 <form class="js-submit" data-submit-callback="order_submit" data-callback="order_data" data-error-callback="form_error" action="add_order.php" method="POST">
                     <table>
                         <tbody>
