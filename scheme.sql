@@ -18,8 +18,8 @@ CREATE TABLE shipments (
     id SERIAL PRIMARY KEY,
     order_id UUID NOT NULL REFERENCES orders (id),
     count SMALLINT NOT NULL,
-    shipping_company VARCHAR(10) NOT NULL,
-    shipment_id VARCHAR(20) NOT NULL,
+    shipping_company VARCHAR(15) NOT NULL,
+    shipment_id VARCHAR(25) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
