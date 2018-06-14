@@ -271,8 +271,8 @@
                     }
                     else {
                         document.querySelector("div#order_status span.not_paid").hidden = json.data.paid;
-                        document.querySelector("div#order_status span.not_shipped").hidden = !json.data.shipments;
-                        document.querySelector("table#shipments").hidden = !!json.data.shipments;
+                        document.querySelector("div#order_status span.not_shipped").hidden = !!json.data.shipments.length;
+                        document.querySelector("table#shipments").hidden = !json.data.shipments.length;
                         const tbody = document.querySelector("table#shipments tbody");
                         json.data.shipments.forEach(shipment => {
                             let row = document.createElement("tr");
